@@ -1,15 +1,18 @@
 <?php
+$skip = array('.', '..');
+$modules = array();
+$files = scandir(dirname(__FILE__) . '/../modules');
+foreach($files as $file)
+    if(!in_array($file, $skip))
+        $modules[$file] = ['class' => 'app\modules\\'.$file.'\Module'];
+
 $config = [
     'id' => 'basic',
     'name' => 'ACMS9',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'language' => 'ru-RU',
-    'modules' => [
-        'admin' => [
-            'class' => 'app\modules\admin\Module',
-        ],
-    ],
+    'modules' => $modules,
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation

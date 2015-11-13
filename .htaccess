@@ -14,6 +14,7 @@
     #RewriteRule ^(.*)$ /web/$1 [L]
 
     RewriteCond %{REQUEST_URI} !^/web/
+    RewriteCond %{REQUEST_URI} !^/deploy/
     RewriteCond %{REQUEST_FILENAME} !-f [OR]
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^.*$ web/index.php
