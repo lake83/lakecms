@@ -6,6 +6,7 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\helpers\Html;
 
 class AdminController extends Controller
 {
@@ -16,7 +17,6 @@ class AdminController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'except' => ['logout'],
                 'rules' => [
                     [
                         'actions' => [$this->action->id],
@@ -32,6 +32,28 @@ class AdminController extends Controller
                     'logout' => ['post']
                 ],
             ],
+        ];
+    }
+    
+    public function actionLogout()
+    {
+        Yii::$app->user->logout();
+
+        return $this->goHome();
+    }
+    
+    public static function is_active($searchModel)
+    {
+        return [
+            'attribute' => 'is_active',
+            'filter' => Html::activeDropDownList(
+            $searchModel,
+            'is_active',
+            [0 => 'Не активно', 1 => 'Активно'],
+                ['class' => 'form-control', 'prompt' => '- выбрать -']
+            ),
+            'value' => function ($model, $index, $widget) {
+                return $model->is_active == 1 ? 'Активно' : 'Не активно';}
         ];
     }
 }

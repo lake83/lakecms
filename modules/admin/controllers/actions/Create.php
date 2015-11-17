@@ -7,10 +7,11 @@ class Create extends \yii\base\Action
 {
     public $model;
     public $success;
+    public $scenario;
     
     public function run()
     {
-        $model = new $this->model;
+        $model = empty($this->scenario) ? new $this->model : new $this->model(['scenario' => $this->scenario]);
         
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', $this->success);

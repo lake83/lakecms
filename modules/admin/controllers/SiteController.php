@@ -26,11 +26,4 @@ class SiteController extends AdminController
     {
         return $this->render('index');
     }
-
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
-    }
 }

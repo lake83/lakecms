@@ -14,12 +14,13 @@ class UserController extends AdminController
         return [
             'index' => [
                 'class' => 'app\modules\admin\controllers\actions\Index',
-                'search' => 'app\modules\user\models\User'
+                'search' => 'app\modules\user\models\UserSearch'
             ],
             'create' => [
                 'class' => 'app\modules\admin\controllers\actions\Create',
                 'model' => 'app\modules\user\models\User',
-                'success' => 'Статья успешно создана.'
+                'scenario' => 'createUser',
+                'success' => 'Пользователь успешно создан.'
             ],
             'update' => [
                 'class' => 'app\modules\admin\controllers\actions\Update',

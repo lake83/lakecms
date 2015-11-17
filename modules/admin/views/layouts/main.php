@@ -1,13 +1,14 @@
 <?php
+/* @var $this \yii\web\View */
+/* @var $content string */
+
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use app\widgets\Alert;
-use app\assets\AppAsset;
-use yii\helpers\Url;
+use app\modules\admin\AppAsset;
 
-/* @var $this \yii\web\View */
-/* @var $content string */
+AppAsset::register($this);
 
 $this->beginPage() ?>
 <!DOCTYPE html>
@@ -36,13 +37,13 @@ $this->beginPage() ?>
                 'options' => ['class' => 'navbar-nav navbar-right'],
                 'items' => [
                     ['label' => 'Админка', 'url' => ['/admin/site/index']],
-                    ['label' => 'Выход', 'url' => ['/admin/site/logout'], 'linkOptions' => ['data-method' => 'post']],
+                    ['label' => 'Выход (' . Yii::$app->user->identity->username . ')', 'url' => ['/admin/admin/logout'], 'linkOptions' => ['data-method' => 'post']],
                 ],
             ]);
             NavBar::end(); 
         ?>
 
-        <div class="container">
+        <div class="container" style="margin-top: 40px;">
             <?php 
             echo Alert::widget();
                 

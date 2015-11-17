@@ -8,10 +8,11 @@ foreach($files as $file)
 
 $config = [
     'id' => 'basic',
-    'name' => 'ACMS9',
+    'name' => 'ACMS 9',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
-    'language' => 'ru-RU',
+    'language' => 'ru',
+    'sourceLanguage' => 'ru',
     'modules' => $modules,
     'components' => [
         'request' => [
@@ -23,9 +24,8 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
-            'loginUrl' => ['site/admin']
+            'identityClass' => 'app\modules\user\models\User',
+            'enableAutoLogin' => true
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -44,13 +44,7 @@ $config = [
                     ]     
                 ]
             ]
-        ],
-        'formatter' => [
-            'class' => 'yii\i18n\Formatter',
-            'locale' => 'ru-RU',
-            'thousandSeparator' => ' ',
-            'decimalSeparator' => ',',
-        ],        
+        ],       
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

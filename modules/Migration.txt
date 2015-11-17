@@ -1,0 +1,1 @@
+﻿yii migrate/up --migrationPath=@app/modules/название_модуля/migrations
