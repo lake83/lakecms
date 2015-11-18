@@ -3,9 +3,9 @@ $skip = array('.', '..');
 $modules = array();
 $files = scandir(dirname(__FILE__) . '/../modules');
 foreach($files as $file)
-    if(!in_array($file, $skip))
+    if(!in_array($file, $skip) && is_dir(dirname(__FILE__) . '/../modules/'.$file))
         $modules[$file] = ['class' => 'app\modules\\'.$file.'\Module'];
-
+        
 $config = [
     'id' => 'basic',
     'name' => 'ACMS 9',
@@ -49,6 +49,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'acms' => 'admin/admin/login',
                 '<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>',
                 '' => 'site/index',
                 '<action>'=>'site/<action>'
@@ -80,6 +81,9 @@ $config = [
                     'js' => [
                         YII_DEBUG ? 'js/bootstrap.js' : 'js/bootstrap.min.js',
                     ]
+                ],
+                'dmstr\web\AdminLteAsset' => [
+                    'skin' => 'skin-green-light'
                 ],
                 /*'app\assets\AppAsset' => [
                     'css' => [

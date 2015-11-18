@@ -93,4 +93,13 @@ return array (
       '@yii/debug' => $vendorDir . '/yiisoft/yii2-debug',
     ),
   ),
+  'yii-dream-team/yii2-upload-behavior' => 
+  array (
+    'name' => 'yii-dream-team/yii2-upload-behavior',
+    'version' => '1.0.0.0',
+    'alias' => 
+    array (
+      '@yiidreamteam/upload' => $vendorDir . '/yii-dream-team/yii2-upload-behavior/src',
+    ),
+  ),
 );

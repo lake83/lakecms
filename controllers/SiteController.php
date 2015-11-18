@@ -32,13 +32,6 @@ class SiteController extends Controller
             ],
         ];
     }
-    
-    /*public function beforeAction($event)
-    {
-        if ($this->action->id != 'admin')
-            Yii::$app->assetManager->bundles['yii\bootstrap\BootstrapAsset'] = ['css' => []];
-        return parent::beforeAction($event);
-    }*/
 
     public function actions()
     {
@@ -51,22 +44,6 @@ class SiteController extends Controller
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
-    }
-    
-    public function actionAcms()
-    {
-        if (!\Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->redirect(['admin/site/index']);
-        } else {
-            return $this->renderAjax('login', [
-                'model' => $model
-            ]);
-        }
     }
 
     public function actionIndex()

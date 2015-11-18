@@ -6,7 +6,7 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use yii\helpers\Html;
+use app\widgets\LoginForm;
 
 class AdminController extends Controller
 {
@@ -17,6 +17,7 @@ class AdminController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
+                'except' => ['login'],
                 'rules' => [
                     [
                         'actions' => [$this->action->id],
@@ -35,6 +36,36 @@ class AdminController extends Controller
         ];
     }
     
+    /**
+     * @inheritdoc
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction'
+            ],
+        ];
+    }
+    
+    public function actionLogin()
+    {
+        $this->layout = 'main-login';
+        
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }                
+
+        $model = new LoginForm();
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            return $this->redirect(['admin/index']);
+        } else {
+            return $this->render('login', [
+                'model' => $model
+            ]);
+        }
+    }
+    
     public function actionLogout()
     {
         Yii::$app->user->logout();
@@ -42,18 +73,8 @@ class AdminController extends Controller
         return $this->goHome();
     }
     
-    public static function is_active($searchModel)
+    public function actionIndex()
     {
-        return [
-            'attribute' => 'is_active',
-            'filter' => Html::activeDropDownList(
-            $searchModel,
-            'is_active',
-            [0 => 'Не активно', 1 => 'Активно'],
-                ['class' => 'form-control', 'prompt' => '- выбрать -']
-            ),
-            'value' => function ($model, $index, $widget) {
-                return $model->is_active == 1 ? 'Активно' : 'Не активно';}
-        ];
+        return $this->render('index');
     }
 }

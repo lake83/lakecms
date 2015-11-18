@@ -10,7 +10,6 @@ use yii\widgets\Pjax;
 
 $this->title = $this->context->module->title;
 ?>
-<h1><?=$this->title?></h1>
 
 <p><?= Html::a('Создать групу пользователей', ['create'], ['class' => 'btn btn-success']) ?></p>
 
@@ -35,7 +34,7 @@ $this->title = $this->context->module->title;
                 'value' => function ($model, $index, $widget) {
                     return !empty($model->group->title) ? $model->group->title : '';}
             ],
-            $this->context->is_active($searchModel),
+            CmsHelper::is_active($searchModel),
 
             [
                 'class' => 'yii\grid\ActionColumn',

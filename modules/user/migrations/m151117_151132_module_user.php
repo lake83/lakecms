@@ -17,6 +17,7 @@ class m151117_151132_module_user extends Migration
             `name` varchar(60) NOT NULL,
             `surname` varchar(80) NOT NULL,
             `status` smallint(6) NOT NULL DEFAULT '10',
+            `image` varchar(255) NOT NULL,
             `is_active` tinyint(1) NOT NULL,
             `created_at` int(11) NOT NULL,
             `updated_at` int(11) NOT NULL,

@@ -23,7 +23,16 @@ class User extends ActiveRecord implements IdentityInterface
     public function behaviors()
     {
         return [
-            TimestampBehavior::className()
+            TimestampBehavior::className(),
+            [
+                'class' => '\yiidreamteam\upload\ImageUploadBehavior',
+                'attribute' => 'image',
+                'thumbs' => ['thumb' => ['width' => 48, 'height' => 48]],
+                'thumbPath' => '@webroot/images/users/thumbs/[[basename]]',
+                'thumbUrl' => '/images/users/thumbs/[[basename]]',
+                'filePath' => '@webroot/images/users/[[basename]]',
+                'fileUrl' => '/images/users/[[basename]]'
+            ],
         ];
     }
 
@@ -52,7 +61,9 @@ class User extends ActiveRecord implements IdentityInterface
             [['surname'], 'string', 'max' => 80],
             
             [['status', 'is_active'], 'integer'],
-            ['status', 'required']
+            ['status', 'required'],
+            
+            [['image'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpeg, jpg, gif']
         ];
     }
     
@@ -69,6 +80,7 @@ class User extends ActiveRecord implements IdentityInterface
             'name' => Yii::t('modules/user/main', 'Имя'),
             'surname' => Yii::t('modules/user/main', 'Фамилия'),
             'status' => 'Статус',
+            'image' => 'Фото',
             'is_active' => 'Активно',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',

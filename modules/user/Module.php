@@ -4,7 +4,7 @@ namespace app\modules\user;
 
 class Module extends \yii\base\Module
 {
-    use \app\widgets\ModuleTranslationsTrait;
+    use \app\widgets\ModuleSettingsTrait;
     
     public $title = 'Пользователи';
     
@@ -13,6 +13,6 @@ class Module extends \yii\base\Module
     public function init()
     {
         parent::init();
-        $this->registerTranslations($this->id);
+        $this->registerSettings($this->id);
     }
 }

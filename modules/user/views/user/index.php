@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 use app\modules\user\models\UserGroup;
+use app\widgets\CmsHelper;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\modules\user\models\User */
@@ -11,8 +12,6 @@ use app\modules\user\models\UserGroup;
 
 $this->title = $this->context->module->title;
 ?>
-<h1><?=$this->title?></h1>
-
 <p><?= Html::a('Создать пользователя', ['create'], ['class' => 'btn btn-success']) ?></p>
 
 <?php Pjax::begin();
@@ -24,6 +23,12 @@ $this->title = $this->context->module->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
+            [
+                'attribute' => 'image',
+                'format' => 'image',
+                'value' => function ($model, $index, $widget) {
+                    return $model->getThumbFileUrl('image', 'thumb', '/images/users/anonymous.png');}
+            ],
             'name',
             'surname',
             'username',
@@ -39,7 +44,7 @@ $this->title = $this->context->module->title;
                 'value' => function ($model, $index, $widget) {
                     return !empty($model->group->title) ? $model->group->title : '';}
             ],
-            $this->context->is_active($searchModel),
+            CmsHelper::is_active($searchModel),
             [
                 'attribute' => 'created_at',
                 'format' => 'date',

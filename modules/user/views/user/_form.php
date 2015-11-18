@@ -4,12 +4,16 @@ use yii\widgets\ActiveForm;
 use app\modules\user\models\UserGroup;
 ?>
 
-<?php $form = ActiveForm::begin(); ?>
+<?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
     <div class="row">
     
         <div class="col-lg-6">
     
+            <?php echo $form->field($model, 'image')->fileInput(); 
+                echo Html::img(Yii::$app->user->identity->getThumbFileUrl('image', 'thumb', '/images/users/anonymous.png'));
+            ?>
+            
             <?= $form->field($model, 'name') ?>
             
             <?= $form->field($model, 'surname') ?>
