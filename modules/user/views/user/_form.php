@@ -2,9 +2,9 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\modules\user\models\UserGroup;
-?>
 
-<?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
+$form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]);
+?>
 
     <div class="row">
     
