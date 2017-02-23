@@ -1,0 +1,1 @@
+<iframe width='100%' height='450' src='<?=\yii\helpers\Url::to(['page', 'id' => Yii::$app->request->getQueryParam('id'), 'layout' => $layout])?>'  frameborder='0' allowfullscreen></iframe>

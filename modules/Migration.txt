@@ -1,1 +1,6 @@
-﻿yii migrate/up --migrationPath=@app/modules/название_модуля/migrations
+﻿Создать:
+yii migrate/create module_название_модуля --migrationPath=@app/modules/название_модуля/migrations
+
+Запустить:
+yii migrate
+yii migrate/up --migrationPath=@app/modules/название_модуля/migrations

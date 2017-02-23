@@ -1,31 +1,28 @@
 <?php
+$migrations = [];
 
-Yii::setAlias('@tests', dirname(__DIR__) . '/tests');
-
-$params = require(__DIR__ . '/params.php');
-$db = require(__DIR__ . '/db.php');
-
+foreach(scandir(dirname(__FILE__) . '/../modules') as $file) {
+    if (!in_array($file, ['.', '..']) && is_dir(dirname(__FILE__) . '/../modules/'.$file)) {
+        $migrations[] = 'app\modules\\'.$file.'\migrations';
+    }
+}
 return [
     'id' => 'basic-console',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log', 'gii'],
+    'language' => 'ru',
+    'sourceLanguage' => 'ru',
     'controllerNamespace' => 'app\commands',
-    'modules' => [
-        'gii' => 'yii\gii\Module',
-    ],
     'components' => [
         'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => 'yii\caching\MemCache',
         ],
-        'log' => [
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
-        ],
-        'db' => $db,
+        'db' => require(__DIR__ . '/db.php')
     ],
-    'params' => $params,
+    'controllerMap' => [
+        'migrate' => [
+            'class' => 'yii\console\controllers\MigrateController',
+            'migrationNamespaces' => $migrations,
+            'migrationPath' => null
+        ]
+    ]
 ];

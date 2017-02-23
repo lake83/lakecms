@@ -1,0 +1,10 @@
+#actions-menu-list > li > a {
+    color: #333;
+}
+#actions-menu-list > li > a:hover {
+    background: none;
+}
+.info {
+    vertical-align: text-top;
+    font-size: 20px;
+}

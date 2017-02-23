@@ -5,8 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\filters\VerbFilter;
-use app\widgets\LoginForm;
+use yii\web\NotFoundHttpException;
 
 class SiteController extends Controller
 {
@@ -15,61 +14,42 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
+                        'actions' => [$this->action->id],
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['?', '@'],
                     ],
                 ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
+                'denyCallback' => function ($rule, $action) {
+                    return Yii::$app->response->redirect('index');
+                }
+            ]
         ];
     }
-
+    
+    /**
+     * @inheritdoc
+     */
     public function actions()
     {
         return [
             'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+                'class' => 'yii\web\ErrorAction'
             ],
         ];
-    }
-
-    public function actionIndex()
+    }        
+    
+    public function actionIndex($page_url = null)
     {
-        return $this->render('index');
-    }
-
-    public function actionLogin()
-    {
-        if (!\Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        }
-        return $this->render('login', [
-            'model' => $model,
-        ]);
-    }
-
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
+        if (is_null($page_url) || !$model = Yii::$app->cache->get($page_url.'__'.Yii::$app->language))
+            throw new NotFoundHttpException(Yii::t('app', 'Страница не найдена.'));
+   
+        $view = $this->view;
+        $view->title = $model['title'];
+        $view->keywords = $model['seo_key'];
+        $view->description = $model['seo_description'];       
+            
+        return $this->render('index', ['layout' => $model['layout'], 'use_blocks' => $model['blocks']]);
     }
 }

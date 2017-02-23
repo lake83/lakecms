@@ -1,6 +1,7 @@
 <IfModule mod_rewrite.c>
     Options +FollowSymlinks
     RewriteEngine On
+    AddDefaultCharset UTF-8
 </IfModule>
 
 <IfModule mod_rewrite.c>
@@ -8,8 +9,7 @@
     RewriteRule ^assets/(.*)$ /web/assets/$1 [L]
     RewriteRule ^css/(.*)$ web/css/$1 [L]
     RewriteRule ^js/(.*)$ web/js/$1 [L]
-    RewriteRule ^fonts/(.*)$ web/fonts/$1 [L]
-    RewriteRule ^files/(.*)$ web/files/$1 [L]   
+    RewriteRule ^fonts/(.*)$ web/fonts/$1 [L] 
     RewriteRule ^images/(.*)$ web/images/$1 [L]
     #RewriteRule ^(.*)$ /web/$1 [L]
 

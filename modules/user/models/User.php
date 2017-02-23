@@ -2,13 +2,25 @@
 namespace app\modules\user\models;
 
 use Yii;
+use yii\db\Query;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 use yii\base\NotSupportedException;
+use yii\web\ForbiddenHttpException;
 use yii\behaviors\TimestampBehavior;
 
 class User extends ActiveRecord implements IdentityInterface
 {
+    /**
+     * @var string Используется при смене пароля в профиле пользователя.
+     */
+    public $new_password;
+    
+    /**
+     * @var boolean Если false, после регистрации пользователю будет отослан email для подтверждения.
+     */
+    public $activeAfterRegistration = false;
+    
     /**
      * @inheritdoc
      */
@@ -23,16 +35,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function behaviors()
     {
         return [
-            TimestampBehavior::className(),
-            [
-                'class' => '\yiidreamteam\upload\ImageUploadBehavior',
-                'attribute' => 'image',
-                'thumbs' => ['thumb' => ['width' => 48, 'height' => 48]],
-                'thumbPath' => '@webroot/images/users/thumbs/[[basename]]',
-                'thumbUrl' => '/images/users/thumbs/[[basename]]',
-                'filePath' => '@webroot/images/users/[[basename]]',
-                'fileUrl' => '/images/users/[[basename]]'
-            ],
+            TimestampBehavior::className()
         ];
     }
 
@@ -42,28 +45,26 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['username', 'required'],
             ['username', 'match', 'pattern' => '/^[a-zA-Z0-9]\w+$/'],
             ['username', 'string', 'min' => 3, 'max' => 25],
             ['username', 'trim'],
-            ['username', 'unique', 'message' => Yii::t('modules/user/main', 'Этот логин уже занят.')],
+            ['username', 'unique', 'message' => Yii::t('user', 'Этот логин уже занят.')],
             
             ['email', 'required'],
             ['email', 'email'],
-            [['email'], 'string', 'max' => 100],
+            [['email', 'image'], 'string', 'max' => 100],
             ['email', 'trim'],
-            ['email', 'unique', 'message' => Yii::t('modules/user/main', 'Этот E-mail уже занят.')],
+            ['email', 'unique', 'message' => Yii::t('user', 'Этот E-mail уже занят.')],
             
             ['password_hash', 'required', 'on' => 'createUser'],
-            ['password_hash', 'string', 'min' => 6],
+            [['password_hash' , 'new_password'], 'string', 'min' => 6],
             
             [['name'], 'string', 'max' => 60],
             [['surname'], 'string', 'max' => 80],
             
-            [['status', 'is_active'], 'integer'],
-            ['status', 'required'],
-            
-            [['image'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpeg, jpg, gif']
+            [['is_active'], 'integer'],
+            ['is_active', 'default', 'value' => $this->activeAfterRegistration ? 1 : 0],
+            ['status', 'required']
         ];
     }
     
@@ -74,16 +75,17 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             'id' => 'ID',
-            'username' => Yii::t('modules/user/main', 'Логин'),
+            'username' => Yii::t('user', 'Логин'),
             'email' => 'E-mail',
-            'password_hash' => Yii::t('modules/user/main', 'Пароль'),
-            'name' => Yii::t('modules/user/main', 'Имя'),
-            'surname' => Yii::t('modules/user/main', 'Фамилия'),
+            'password_hash' => Yii::t('user', 'Пароль'),
+            'new_password' => Yii::t('user', 'Пароль'),
+            'name' => Yii::t('user', 'Имя'),
+            'surname' => Yii::t('user', 'Фамилия'),
             'status' => 'Статус',
             'image' => 'Фото',
             'is_active' => 'Активно',
             'created_at' => 'Создан',
-            'updated_at' => 'Обновлен',
+            'updated_at' => 'Обновлен'
         ];
     }
     
@@ -92,12 +94,52 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function beforeSave($insert)
     {
-        if ($this->scenario == 'createUser')
-        {
+        if (!$this->isNewRecord && $this->status == 'admin' && $this->is_active == 0 && (self::find()->where(['status' => 'admin', 'is_active' => 1])->count()) == 1) {
+            throw new ForbiddenHttpException('Должен быть хотя бы один действующий администратор.');
+        }
+        if ($this->scenario == 'createUser') {
             $this->generateAuthKey();
             $this->setPassword($this->password_hash);
+            if (empty($this->username)) {
+                $this->generateUsername();
+            } 
         }
+        if (!$this->isNewRecord) {
+            if (!empty($this->new_password)) {
+                $this->setPassword($this->new_password);
+            }
+        } 
         return parent::beforeSave($insert);
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (!$this->isNewRecord && $this->id == Yii::$app->user->id && $this->is_active == 0) {
+            Yii::$app->response->redirect('/admin')->send();
+        }
+        if (Yii::$app->cache->get('user_' . $this->id) !== false) {
+            Yii::$app->cache->delete('user_' . $this->id);
+        }
+        parent::afterSave($insert, $changedAttributes);
+    }
+    
+    /**
+     * Генерация нового логина из email или создается вида "user1".
+     */
+    public function generateUsername()
+    {
+        $this->username = explode('@', $this->email)[0];
+        if ($this->validate(['username'])) {
+            return $this->username;
+        }
+        while (!$this->validate(['username'])) {
+            $row = (new Query())->from('{{%user}}')->select('MAX(id) as id')->one();
+            $this->username = 'user' . ++$row['id'];
+        }
+        return $this->username;
     }
 
     /**
@@ -105,7 +147,11 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return static::findOne(['id' => $id, 'is_active' => 1]);
+        if (!$user = Yii::$app->cache->get('user_' . $id)) {
+            $user = static::findOne(['id' => $id, 'is_active' => 1]);
+            Yii::$app->cache->set('user_' . $id, $user);
+        } 
+        return $user;
     }
 
     /**
@@ -117,14 +163,14 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Finds user by username
+     * Finds user by username or email
      *
      * @param string $username
      * @return static|null
      */
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'is_active' => 1]);
+        return static::find()->where(['is_active' => 1])->andWhere(['or', ['username' => $username],['email' => $username]])->one();
     }
 
     /**
@@ -138,7 +184,6 @@ class User extends ActiveRecord implements IdentityInterface
         if (!static::isPasswordResetTokenValid($token)) {
             return null;
         }
-
         return static::findOne([
             'password_reset_token' => $token,
             'is_active' => 1,
@@ -233,6 +278,10 @@ class User extends ActiveRecord implements IdentityInterface
     
     public function getGroup()
     {
-        return $this->hasOne(UserGroup::className(), ['status' => 'status']);
+        $query = $this->hasOne(Group::className(), ['status' => 'status']);
+        if (!Yii::$app->user->isGuest) {
+            $query->andWhere(['is_active' => 1]);
+        }            
+        return $query;
     }
 }

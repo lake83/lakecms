@@ -18,9 +18,9 @@ class UserSearch extends User
     public function rules()
     {
         return [
-            [['is_active', 'status'], 'integer'],
+            [['is_active'], 'integer'],
             [['created_at', 'updated_at'], 'date', 'format' => 'd.m.Y'],
-            [['name', 'surname', 'username', 'email'], 'safe']
+            [['name', 'surname', 'username', 'email', 'status'], 'safe']
         ];
     }
     
@@ -46,7 +46,7 @@ class UserSearch extends User
         
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort' => ['defaultOrder' => ['created_at'=>SORT_DESC]]
+            'sort' => ['defaultOrder' => ['id' => SORT_ASC, 'created_at'=>SORT_DESC]]
         ]);
 
         $this->load($params);
@@ -59,7 +59,6 @@ class UserSearch extends User
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'status' => $this->status,
             'is_active' => $this->is_active,
             'FROM_UNIXTIME(created_at, "%d.%m.%Y")' => $this->created_at,
             'FROM_UNIXTIME(updated_at, "%d.%m.%Y")' => $this->updated_at
@@ -68,7 +67,8 @@ class UserSearch extends User
         $query->andFilterWhere(['like', 'username', $this->username])
               ->andFilterWhere(['like', 'email', $this->email])
               ->andFilterWhere(['like', 'name', $this->name])
-              ->andFilterWhere(['like', 'surname', $this->surname]);
+              ->andFilterWhere(['like', 'surname', $this->surname])
+              ->andFilterWhere(['like', 'status', $this->status]);
 
         return $dataProvider;
     }

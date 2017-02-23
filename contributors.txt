@@ -1,1 +1,5 @@
-Lilia Lisakovska
+Aleksandr Hanko
+
+dev
+http://lakecms.cu.cc
+admin login/password : admin/lakeadmin

@@ -2,17 +2,46 @@
 
 namespace app\modules\user;
 
-class Module extends \yii\base\Module
+class Module extends \yii\base\Module implements \app\components\ModuleInterface
 {
-    use \app\widgets\ModuleSettingsTrait;
+    public $title = 'Доступ';
     
-    public $title = 'Пользователи';
-    
-    public $controllerNamespace = 'app\modules\user\controllers';
-
-    public function init()
+    public static function getMenu()
     {
-        parent::init();
-        $this->registerSettings($this->id);
+        return [
+            'modules_show' => false,
+            'items' => [
+                ['label' => 'Пользователи', 'icon' => 'fa fa-user', 'url' => ['/user/user/index']],
+                ['label' => 'Групы пользователей', 'icon' => 'fa fa-users', 'url' => ['/user/group/index']]
+            ]
+        ];
+    }
+    
+    public static function getPermissions()
+    {
+        return [
+            'user' => [
+                'controller' => 'Пользователи',
+                'index' => 'Список',
+                'create' => 'Добавить',
+                'update' => 'Обновить',
+                'delete' => 'Удалить',
+                'login' => 'Вход в админку',
+                'toggle' => 'Активировать'
+            ],
+            'group' => [
+                'controller' => 'Групы пользователей',
+                'index' => 'Список',
+                'create' => 'Добавить',
+                'update' => 'Обновить',
+                'delete' => 'Удалить',
+                'toggle' => 'Активировать'
+            ]
+        ];
+    }
+    
+    public static function getTranslations()
+    {
+        return false;
     }
 }

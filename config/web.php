@@ -1,16 +1,12 @@
 <?php
-$skip = array('.', '..');
-$modules = array();
-$files = scandir(dirname(__FILE__) . '/../modules');
-foreach($files as $file)
-    if(!in_array($file, $skip) && is_dir(dirname(__FILE__) . '/../modules/'.$file))
-        $modules[$file] = ['class' => 'app\modules\\'.$file.'\Module'];
-        
+
+require(__DIR__ . '/modules.php');
+    
 $config = [
     'id' => 'basic',
-    'name' => 'ACMS 9',
+    'name' => 'LakeCMS',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['app\config\settings'],
     'language' => 'ru',
     'sourceLanguage' => 'ru',
     'modules' => $modules,
@@ -18,17 +14,21 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => '5bdV2clPQw7gpZ-Vt6yI5yNVQMXBZUkw',
-            'baseUrl' => '',
+            'baseUrl' => ''
         ],
         'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => 'yii\caching\MemCache'
+        ],
+        'view' => [
+            'class' => 'app\components\View'
         ],
         'user' => [
             'identityClass' => 'app\modules\user\models\User',
-            'enableAutoLogin' => true
+            'enableAutoLogin' => true,
+            'loginUrl' => '/login'
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => 'site/error'
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
@@ -40,22 +40,28 @@ $config = [
                 'plugins' => [
                     [
                         'class' => 'Swift_Plugins_ThrottlerPlugin',
-                        'constructArgs' => [20],
+                        'constructArgs' => [20]
                     ]     
                 ]
             ]
         ],       
         'urlManager' => [
+            'class' => 'codemix\localeurls\UrlManager',
+            'enableDefaultLanguageUrlCode' => true,                        
+            'ignoreLanguageUrlPatterns' => $ignoreUrl,
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+            'normalizer' => [
+                'class' => 'yii\web\UrlNormalizer'
+            ],       
             'rules' => [
-                'acms' => 'admin/admin/login',
-                '<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>',
-                '' => 'site/index',
-                '<action>'=>'site/<action>'
+                ['class' => 'app\components\UrlRule'],
+                'admin' => 'user/user/login',
+                'news/<slug>' => 'news/article'
             ],
         ],
         'assetManager' => [
+            'appendTimestamp' => true,
             'basePath' => '@webroot/assets',
             'baseUrl' => '@web/assets',
             'bundles' => [
@@ -69,62 +75,62 @@ $config = [
                         YII_DEBUG ? 'jquery-ui.js' : 'jquery-ui.min.js'
                     ],
                     'css' => [
-                        YII_DEBUG ? 'themes/smoothness/jquery-ui.css' : 'themes/smoothness/jquery-ui.min.css',
+                        YII_DEBUG ? 'themes/smoothness/jquery-ui.css' : 'themes/smoothness/jquery-ui.min.css'
                     ]
                 ],
                 'yii\bootstrap\BootstrapAsset' => [
                     'css' => [
-                        YII_DEBUG ? 'css/bootstrap.css' : 'css/bootstrap.min.css',
+                        YII_DEBUG ? 'css/bootstrap.css' : 'css/bootstrap.min.css'
                     ]
                 ],
                 'yii\bootstrap\BootstrapPluginAsset' => [
                     'js' => [
-                        YII_DEBUG ? 'js/bootstrap.js' : 'js/bootstrap.min.js',
+                        YII_DEBUG ? 'js/bootstrap.js' : 'js/bootstrap.min.js'
                     ]
-                ],
-                'dmstr\web\AdminLteAsset' => [
-                    'skin' => 'skin-green-light'
-                 /* "skin-blue",
-                    "skin-black",
-                    "skin-red",
-                    "skin-yellow",
-                    "skin-purple",
-                    "skin-green",
-                    "skin-blue-light",
-                    "skin-black-light",
-                    "skin-red-light",
-                    "skin-yellow-light",
-                    "skin-purple-light",
-                    "skin-green-light" */
                 ],
                 /*'app\assets\AppAsset' => [
                     'css' => [
-                        YII_DEBUG ? 'css/site.css' : 'css/site.min.css',
+                        YII_DEBUG ? 'css/site.css' : 'css/site.min.css'
                     ]
-                ],*/
-            ],
-        ],
-        'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
                 ],
-            ],
+                'app\assets\AdminAsset' => [
+                    'css' => [
+                        YII_DEBUG ? 'css/admin.css' : 'css/admin.min.css'
+                    ],
+                    'js' => [
+                        YII_DEBUG ? 'js/admin.js' : 'js/admin.min.js'
+                    ]
+                ]*/
+            ]
         ],
-        'db' => require(__DIR__ . '/db.php'),
-    ],
-    'params' => require(__DIR__ . '/params.php'),
+        'i18n' => [
+            'translations' => $translations
+        ],
+        'db' => require(__DIR__ . '/db.php')
+    ]
 ];
 
 if (YII_ENV_DEV) {
-    // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = 'yii\debug\Module';
 
     $config['bootstrap'][] = 'gii';
-    $config['modules']['gii'] = 'yii\gii\Module';
+    $config['modules']['gii'] = [
+        'class'      => 'yii\gii\Module',
+        'generators' => [
+            'controller'   => [
+                'class'     => 'yii\gii\generators\controller\Generator',
+                'templates' => [
+                    'actions' => '@app/components/gii/controller',
+                    'frontend' => '@app/components/gii/controller/frontend'
+                ]
+            ],
+            'crud'   => [
+                'class'     => 'yii\gii\generators\crud\Generator',
+                'templates' => ['actions' => '@app/components/gii/crud']
+            ]
+        ]
+    ];
 }
 
 return $config;
