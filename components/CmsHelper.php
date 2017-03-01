@@ -164,19 +164,23 @@ class CmsHelper
      */
     public static function resized_image($image = '', $width, $height = '')
     {
+        $url = false;
         if (!empty($image)) {
-            $file = explode('/', $image);
-            $file = end($file);
-            $dir = Yii::getAlias('@webroot/images/uploads/') . $width . 'x' . $height;
+            $image = explode('/', $image);
+            $last = end(array_keys($image));
+            $file = end($image);
+            unset($image[$last]);
+            $dir_path = !empty($image) ? '/' . implode('/', $image) : '';
+            $dir = Yii::getAlias('@webroot/images/uploads/') . $width . 'x' . $height . $dir_path;
             $img = $dir . '/' . $file;
             
             if (file_exists($img)) {
                 $url = true;
             } else {
                 FileHelper::createDirectory($dir);
-                $original = Yii::getAlias('@webroot/images/uploads/source/') . $file;
+                $original = Yii::getAlias('@webroot/images/uploads/source') . $dir_path . '/' . $file;
                 try {
-                    if (filesize($original) < 10000000) {
+                    if (file_exists($original) && filesize($original) < 10000000) {
                         Image::thumbnail($original, $width, $height)->save($img, ['quality' => 100]);
                     }
                     $url = true;
@@ -185,7 +189,7 @@ class CmsHelper
                 }
             }
         }
-        return $url ? '/images/uploads/' . $width . 'x' . $height . '/' . $file : '/images/anonymous.png';
+        return $url ? '/images/uploads/' . $width . 'x' . $height . $dir_path . '/' . $file : '/images/anonymous.png';
     }
     
     /**
