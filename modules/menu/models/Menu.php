@@ -69,7 +69,7 @@ class Menu extends \yii\db\ActiveRecord
      */
     public function getMenuItems()
     {
-        return $this->hasMany(MenuItems::className(), ['menu_id' => 'id'])->localized();
+        return $this->hasMany(MenuItems::className(), ['menu_id' => 'id'])->andWhere(['is_active' => 1])->localized();
     }
     
     public static function getAll()
