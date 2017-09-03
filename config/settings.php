@@ -21,23 +21,23 @@ class settings implements BootstrapInterface
     */
     public function bootstrap($app)
     {
-        if (!$settings = Yii::$app->cache->get('settings')) {
+        if (!$settings = $app->cache->get('settings')) {
             foreach ($this->db->createCommand("SELECT name, value FROM settings")->queryAll() as $val) {
                 if (strpos($val['value'], '=>'))
                     $val['value'] = CmsHelper::settings_array($val['value']);
                 $settings[$val['name']] = $val['value'];
             }
-            Yii::$app->cache->set('settings', $settings, 0, new \yii\caching\TagDependency(['tags' => 'settings']));           
+            $app->cache->set('settings', $settings, 0, new \yii\caching\TagDependency(['tags' => 'settings']));           
         }
-        Yii::$app->params = $settings;
+        $app->params = $settings;
         
         if (!$app instanceof \yii\console\Application) {
             // Установка язиков для urlManager
-            if (is_array($langs = Yii::$app->params['languages']) && count($langs) > 1) {
+            if (is_array($langs = $app->params['languages']) && count($langs) > 1) {
                 $app->urlManager->languages = array_keys($langs);
             }
             // Установка темы в админке
-            Yii::$container->set('dmstr\web\AdminLteAsset', ['skin' => Yii::$app->params['skin']]);
+            Yii::$container->set('dmstr\web\AdminLteAsset', ['skin' => $app->params['skin']]);
         }
     }
 }

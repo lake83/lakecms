@@ -22,8 +22,8 @@ class FilemanagerInput extends InputWidget
     {
         parent::init();
         $this->view->registerJs("
-            $('.modal-dialog').css('width', document.body.clientWidth - 60 + 'px');
-            $('.modal-body').css('height', document.body.clientHeight - 120 + 'px');
+            $('#modal_filemanager .modal-dialog').css('width', document.body.clientWidth - 60 + 'px');
+            $('#modal_filemanager .modal-body').css('height', document.body.clientHeight - 120 + 'px');
         ");
         Modal::begin([
             'header' => '<b style="font-size: 20px">Файловый менеджер</b>',
@@ -60,7 +60,7 @@ class FilemanagerInput extends InputWidget
      */
     public function setUrl()
     {
-        return Yii::$app->request->hostInfo . TinymceAsset::register($this->view)->baseUrl . '/filemanager/dialog.php?type=1&field_id=' .
+        return Yii::$app->request->hostInfo . TinymceAsset::register($this->view)->baseUrl . '/filemanager/dialog.php?type=2&field_id=' .
             $this->options['id'] . '&relative_url=1&descending=false&lang=ru&akey=' . urlencode(serialize($this->configPath));
     }
 }
